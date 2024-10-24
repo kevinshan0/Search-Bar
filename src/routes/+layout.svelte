@@ -2,35 +2,40 @@
 	import { auth, db } from "$lib/firebase";
 	import { doc, getDoc, setDoc } from "firebase/firestore";
 	import { onMount } from "svelte";
-	import { authStore } from "../stores/store.svelte";
+	import { createUserInfoStore ,createLoadingStatusStore } from "$lib/stores/store.svelte";
+	import { goto } from "$app/navigation";
 
     const nonAuthRoutes = ["/"];
-    const authStoreInstance = authStore();
+    const userInfo = createUserInfoStore();
+    const loadingStatus = createLoadingStatusStore();
 
     onMount(() => {
-        const unsubscribe = auth.onAuthStateChanged(async user => {
+        auth.onAuthStateChanged(async user => {
+            loadingStatus.flip();
             const currentPath = window.location.pathname;
 
             if (!user && !nonAuthRoutes.includes(currentPath)) {
-                window.location.href = "/";
+                goto("/");
+                loadingStatus.flip();
                 return;
             }
 
             if (user && currentPath === '/') {
-                window.location.href = "/dashboard";
+                goto("/dashboard");
+                loadingStatus.flip();
                 return;
             }
 
-            if (!user)
+            if (!user) {
+                loadingStatus.flip();
                 return;
+            }
 
-            const docRef = doc(db, "users", user.uid);
-            const docSnap = await getDoc(docRef);
+            const userRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userRef);
 
             let dataToStore;
             if (!docSnap.exists()) {
-                const userRef = doc(db, "user", user.uid);
-
                 dataToStore = {
                     email: user.email
                 }
@@ -40,14 +45,17 @@
                     dataToStore,
                     { merge: true }
                 );
-            } else {
-                const userData = docSnap.data();
-                dataToStore = userData;
+            }
+            else {
+                dataToStore = docSnap.data();
             }
 
-            authStoreInstance.update(user, false, dataToStore);
+            userInfo.update(user, dataToStore);
+            loadingStatus.flip();
         })
     })
 </script>
 
-<slot />
+{#if !loadingStatus.isLoading}
+    <slot />
+{/if}
