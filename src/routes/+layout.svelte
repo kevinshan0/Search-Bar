@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { auth, db } from "$lib/firebase";
+	import { auth, db } from "$lib/firebase/firebase";
 	import { doc, getDoc, setDoc } from "firebase/firestore";
 	import { onMount } from "svelte";
-	import { createUserInfoStore ,createLoadingStatusStore } from "$lib/stores/store.svelte";
+	import { userInfo , loadingStatus } from "$lib/stores/store.svelte";
 	import { goto } from "$app/navigation";
 
     const nonAuthRoutes = ["/"];
-    const userInfo = createUserInfoStore();
-    const loadingStatus = createLoadingStatusStore();
 
     onMount(() => {
         auth.onAuthStateChanged(async user => {
@@ -37,7 +35,9 @@
             let dataToStore;
             if (!docSnap.exists()) {
                 dataToStore = {
-                    email: user.email
+                    email: user.email,
+                    notes: [],
+                    reminders: []
                 }
 
                 await setDoc(

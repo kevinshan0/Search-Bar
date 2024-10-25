@@ -1,9 +1,7 @@
 <script>
-	import { createLoadingStatusStore } from "$lib/stores/store.svelte";
-
-    const loadingStatus = createLoadingStatusStore();
+	import { loadingStatus } from "$lib/stores/store.svelte";
 </script>
 
 {#if !loadingStatus.isLoading}
-    <slot />
+    <slot/>
 {/if}
