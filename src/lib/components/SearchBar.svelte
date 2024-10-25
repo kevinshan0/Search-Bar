@@ -1,5 +1,9 @@
 <script lang="ts">
 	import { input } from "$lib/stores/store.svelte";
+	
+    import Button from "./ui/button/button.svelte";
+	import Input from "./ui/input/input.svelte";
+	import Label from "./ui/label/label.svelte";
 
     let text: string;
     function onclick() {
@@ -7,10 +11,6 @@
     }
 </script>
 
-<form>
-    <label>
-        <h1>Search Bar</h1>
-        <input type="text" bind:value={text}>
-    </label>
-    <button {onclick}>Enter</button>
-</form>
+<Label for="search-bar">Search Bar</Label>
+<Input id="search-bar" type="text" bind:value={text}></Input>
+<Button {onclick}>Enter</Button>

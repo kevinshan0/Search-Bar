@@ -1,5 +1,9 @@
 <script lang="ts">
 	import { authHandler } from "$lib/stores/store.svelte";
+	import Button from "./ui/button/button.svelte";
+	import Input from "./ui/input/input.svelte";
+	import Label from "./ui/label/label.svelte";
+    import * as Card from "./ui/card";
 
     let email:string;
     let password:string;
@@ -9,7 +13,7 @@
     let authenticating = false;
     let errorOccured = false;
 
-    async function authenticate() {
+    async function onclick() {
         if (authenticating)
             return;
 
@@ -32,10 +36,10 @@
         }
         catch (error) {
             console.log("authentication error", error);
-            authenticating = false;
             errorOccured = true;
         }
 
+        authenticating = false;
     }
 
     function switchAuth() {
@@ -43,39 +47,41 @@
     }
 </script>
 
-<div class="container">
-    <form>
-        <h1>{registering ? "Sign Up": "Sign In"}</h1>
+<Card.Root class="w-[400px]">
+    <Card.Header>
+        <Card.Title tag="h1">{registering ? "Sign Up": "Sign In"}</Card.Title>
         {#if errorOccured}
-            <p class="error">Invalid Credentials</p>
+            <p>Invalid Credentials</p>
         {/if}
-        <label>
-            <p>Email</p>
-            <input type="email" bind:value={email} placeholder="Email">
-        </label>
-        <label>
-            <p>Password</p>
-            <input type="password" bind:value={password} placeholder="Password">
-        </label>
+    </Card.Header>
+
+
+    <Card.Content>
+        <Label for="email">Email</Label>
+        <Input id="email" type="email" bind:value={email} placeholder="Email"/>
+        
+        <Label for="password">Password</Label>
+        <Input id="password" type="password" bind:value={password} placeholder="Password"/>
+
         {#if registering}
-            <label>
-                <p>Confirm Password</p>
-                <input type="password" bind:value={confirmPassword} placeholder="Password">
-            </label>
+            <Label for="confirm-password">Confirm Password</Label>
+            <Input id="confirm-password" type="password" bind:value={confirmPassword} placeholder="Password"/>
         {/if}
-        <button on:click={authenticate}>
+
+        <Button {onclick}>
             {#if authenticating}
                 loading
             {:else}
                 {registering ? "Sign Up": "Sign In"}
             {/if}
-        </button>
-    </form>
+        </Button>
+    </Card.Content>
 
-    <div>
+
+    <Card.Footer>
         <p>
             <span>{registering ? "Already have an account?" : "Don't have an account?"}</span>
-            <a href="/" on:click={switchAuth}>{registering ? "Sign In" : "Sign Up"}</a>
+            <a href="/" onclick={switchAuth}>{registering ? "Sign In" : "Sign Up"}</a>
         </p>
-    </div>
-</div>
+    </Card.Footer>
+</Card.Root>
